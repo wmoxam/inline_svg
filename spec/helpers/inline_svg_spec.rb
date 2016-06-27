@@ -14,13 +14,13 @@ describe InlineSvg::ActionView::Helpers do
   let(:helper) { ( Class.new { include InlineSvg::ActionView::Helpers } ).new }
 
   describe "#inline_svg" do
-    
+
     context "when passed the name of an SVG that does not exist" do
       it "returns an empty, html safe, SVG document as a placeholder" do
         allow(InlineSvg::AssetFile).to receive(:named).with('some-missing-file').and_raise(InlineSvg::AssetFile::FileNotFound.new)
         output = helper.inline_svg('some-missing-file')
         expect(output).to eq "<svg><!-- SVG file not found: 'some-missing-file' --></svg>"
-        expect(output).to be_html_safe
+        expect(output).to be_html_safe if defined?(Rails)
       end
     end
 
@@ -169,13 +169,13 @@ SVG
         expect(InlineSvg::IOResource).to receive(:read).with(io_object).and_return("<svg><!-- Test IO --></svg>")
         output = helper.inline_svg(io_object)
         expect(output).to eq "<svg><!-- Test IO --></svg>\n"
-        expect(output).to be_html_safe
+        expect(output).to be_html_safe if defined?(Rails)
       end
 
       it 'return valid svg for file' do
         output = helper.inline_svg(File.new(file_path))
         expect(output).to eq "<svg xmlns=\"http://www.w3.org/2000/svg\" xml:lang=\"en\" role=\"presentation\"><!-- This is a test comment --></svg>\n"
-        expect(output).to be_html_safe
+        expect(output).to be_html_safe if defined?(Rails)
       end
 
     end

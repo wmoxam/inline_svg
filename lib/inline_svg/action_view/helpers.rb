@@ -5,17 +5,23 @@ module InlineSvg
   module ActionView
     module Helpers
       def inline_svg(filename, transform_params={})
-        begin
+        html = begin
           svg_file = if InlineSvg::IOResource === filename
             InlineSvg::IOResource.read filename
           else
             InlineSvg::AssetFile.named filename
           end
+
+          InlineSvg::TransformPipeline.generate_html_from(svg_file, transform_params)
         rescue InlineSvg::AssetFile::FileNotFound
-          return "<svg><!-- SVG file not found: '#{filename}' --></svg>".html_safe
+          "<svg><!-- SVG file not found: '#{filename}' --></svg>"
         end
 
-        InlineSvg::TransformPipeline.generate_html_from(svg_file, transform_params).html_safe
+        if defined?(Rails)
+          html.html_safe
+        else
+          html
+        end
       end
     end
   end
